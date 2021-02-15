@@ -4,7 +4,7 @@
 {% for cat in catg %}
     <div class="post">
         
-        <h1><a href="{% url 'post:cat_post' cat.name|slugify  %}">{{ cat.name }}</a></h1>
+        <h1><a href="{% url 'post:cat_post' cat.slug   %}">{{ cat.name }}</a></h1>
         
         {{ cat.description }}
         

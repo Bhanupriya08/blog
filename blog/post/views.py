@@ -50,7 +50,9 @@ def category(request):
     return render(request,'post/catg.html',{'catg':catg})
 
 def cat_post(request,cats):
-    category = Category.objects.filter(name=cats).first()
+    print(cats)
+    category = Category.objects.filter(slug=cats ).first()
     print(category)
     posts = Post.objects.filter(category=category).all()
+    print(posts)
     return render(request,'post/catg_post.html',{'posts':posts})

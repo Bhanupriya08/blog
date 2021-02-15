@@ -7,6 +7,9 @@ class PostAdmin(admin.ModelAdmin):
     search_fields =('title','author__username',)    #author__username for foreginkey use __ and than field name
 admin.site.register(Post,PostAdmin)
 
-admin.site.register(Category)
+
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ('name','slug')
+admin.site.register(Category,CategoryAdmin)
 
 
