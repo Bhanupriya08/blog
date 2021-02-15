@@ -14,9 +14,7 @@ def post_detail(request,pk):
     return render(request, 'post/post_detail.html', {'post': post})
 
 
-def post_new(request):
-    form = PostForm()
-    return render(request, 'post/post_edit.html', {'form': form})
+
 
 def post_new(request):
     if request.method == "POST":
