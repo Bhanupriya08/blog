@@ -6,7 +6,7 @@ from .forms import PostForm
 
 # Create your views here.
 def post_list(request):
-    posts = Post.objects.filter(published_date__lte=timezone.now()).order_by('published_date')
+    posts = Post.objects.filter(published_date__lte=timezone.now()).order_by('-published_date')
     return render(request, 'post/post_list.html', {"posts":posts})
 
 def post_detail(request,pk):
@@ -39,7 +39,7 @@ def post_edit(request, pk):
             post.author = request.user
             post.published_date = timezone.now()
             post.save()
-            return redirect('post_detail', pk=post.pk)
+            return redirect('post:post_detail', pk=post.pk)
     else:
         form = PostForm(instance=post)
     return render(request, 'post/post_edit.html', {'form': form})
