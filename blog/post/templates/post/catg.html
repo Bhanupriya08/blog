@@ -1,0 +1,13 @@
+{% extends 'post/base.html' %}
+
+{% block content %}
+{% for cat in catg %}
+    <div class="post">
+        
+        <h1><a href="{% url 'post:cat_post' cat.name|slugify  %}">{{ cat.name }}</a></h1>
+        
+        {{ cat.description }}
+        
+    </div>
+    {% endfor %}
+{% endblock %}
