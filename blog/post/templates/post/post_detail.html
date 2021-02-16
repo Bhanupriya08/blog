@@ -12,5 +12,54 @@
         {% endif %}
         <h2>{{ post.title }}</h2>
         <p>{{ post.text|linebreaksbr }}</p>
+        
+        {% with comments.count as total_comments %}
+        <h2>
+            {{ total_comments }} comment {{ total_comments|pluralize }}
+        </h2>
+        {% endwith %}
+
+        {% for comment in comments %}
+        <div class='comment'>
+            <p class= 'info'>
+                Comment {{ forloop.counter }} by {{ comment.name }} {{ comment.created_date }}
+            </p>
+            {{ comment.body |linebreaksbr }}
+            <div style="margin-left: 20px;">
+
+            </div>
+            {% for reply in comment.replies.all %}
+                <p class="info" style="color: brown;margin-top: 10px;margin-left: 20px;"><strong>{{ reply.name }} | {{ reply.created }}</strong></p>
+                <li style="color: brown;margin-top: 10px;margin-left: 20px;">{{ reply.body }}</li>
+            {% endfor %}
+            <h3>reply</h3>
+            <div style="margin-left: 20px;">
+                <form action="." method="post">
+                    {{ comment_form.as_p }}
+                    {% csrf_token %}
+                    <!-- Hidden input for parent comment.id -->
+                    <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                    <input class="btn btn-primary" type="submit" value="Reply">
+                </form>
+            </div>
+            
+        </div>
+        {% empty %}
+        <p> There are no comments Yet.</p>
+        {% endfor %}
+
+        
+
+        {% if new_comment %}
+        <h2>Your Comment has been added </h2>
+        {% else %}
+        <h2>Add a new comment </h2>
+        <form method="post">
+            {{ comment_form.as_p }}
+            {% csrf_token %}
+            <p><input type="submit" value='Add comment'></p>
+        </form>
+        {% endif %}
     </div>
+    
 {% endblock %}
