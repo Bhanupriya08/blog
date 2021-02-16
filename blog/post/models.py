@@ -1,11 +1,12 @@
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
+from django.utils.text import slugify
 
 
 class Category(models.Model):
     name = models.CharField(max_length=255)
-    slug = models.SlugField()
+    slug = models.SlugField(unique=True)
     description = models.CharField(max_length=255,blank=True, null=True )
     parent = models.ForeignKey('self',on_delete=models.CASCADE,blank=True, null=True ,related_name='children')
 
@@ -20,7 +21,9 @@ class Category(models.Model):
         verbose_name_plural = "categories"     
 
     
-
+    def save(self,*args,**kwargs):
+        self.slug = slugify(self.name)
+        super(Category,self).save(*args,**kwargs)
 
 
     def __str__(self):
