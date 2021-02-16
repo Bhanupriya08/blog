@@ -14,6 +14,8 @@ def post_list(request,tag_slug=None):
         posts = posts.filter(tags__in=[tag])
     return render(request, 'post/post_list.html', {"posts":posts,"tag":tag})
 
+
+
 def post_detail(request,pk):
     post = get_object_or_404(Post, pk=pk)
     comments = post.comments.filter(active=True,parent__isnull=True)
@@ -31,11 +33,12 @@ def post_detail(request,pk):
                 if parent_obj:
                     replay_comment = comment_form.save(commit=False)
                     replay_comment.parent = parent_obj
-                    
+
 
             new_comment = comment_form.save(commit=False)
             new_comment.post = post
             new_comment.save()
+            return redirect("post:post_detail",pk=post.pk)
     else:
         comment_form = CommentForm()
     return render(request, 'post/post_detail.html', 
