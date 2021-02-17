@@ -1,11 +1,76 @@
 from django.shortcuts import render,get_object_or_404
 from django.utils import timezone
-from .models import Post,Category,Comment
+from .models import Post,Category,Comment,Profile
 from django.shortcuts import redirect
-from .forms import PostForm, CommentForm
+from .forms import PostForm, CommentForm,UserProfileForm,UserUpdateForm,UserCreateForm
 from taggit.models import Tag
+from django.contrib.auth.models import User
+#from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login,authenticate
+from django.contrib.auth.decorators import login_required
+from blog.settings import BASE_DIR #to delete old profile pic
+import os
+
+
 
 # Create your views here.
+def profile(request):
+    username= request.user
+    user = User.objects.get(username=username)
+    try:
+        pic = Profile.objects.get(user=user)
+    except:
+        profile = Profile(user=user,profile_pic=" ")
+        
+        profile.save()
+        pic = profile.profile_pic
+    return render(request,'post/profile.html',{'user':user,"pic":pic})
+
+@login_required
+def profile_edit(request,id):
+    user = get_object_or_404(User,id=id)
+    pic = get_object_or_404(Profile,user=user)
+    
+    p_form = UserProfileForm(request.POST,request.FILES,instance=pic)
+    u_form = UserUpdateForm(request.POST,instance=user)
+    if request.method == 'POST':
+        
+        if p_form.is_valid() and u_form.is_valid():
+            """p_form.save(commit=False)
+            if pic.profile_pic != None:
+                p_form.profile_pic = p_form.cleaned_data.get('profile_pic')"""
+
+            
+            #os.remove(BASE_DIR+'\profiles'+pic.profile_pic.url)
+            
+            u_form.save()
+            p_form.save()
+            message = 'Your profile has been updated'
+            return redirect('post:profile')
+    else:
+        print(user)
+        p_form = UserProfileForm(instance=pic)
+        u_form = UserUpdateForm(instance=user)
+        return render(request,'post/profile_edit.html',{'p_form':p_form,'u_form':u_form})
+
+
+
+def sign_up(request):
+    form = UserCreateForm(request.POST or None)
+    if request.method == "POST":
+        if form.is_valid():
+            
+            user = form.save()
+
+            login(request,user)
+            
+            return redirect('post:post_list')
+    else:
+        form = UserCreateForm()
+        return render(request,'registration/sign_up.html',{'form':form})
+
+
+
 def post_list(request,tag_slug=None):
     posts = Post.objects.filter(published_date__lte=timezone.now()).order_by('-published_date')
     tag = None

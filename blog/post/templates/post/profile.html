@@ -1,0 +1,19 @@
+{% extends 'post/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="post">
+    <a class="btn btn-default" href="{% url 'post:profile_edit' user.id %}"><span class="glyphicon glyphicon-pencil"></span></a>
+    <h2>Username: {{ user.username }}</h2>
+    <h2>Name: {{ user.first_name }} {{ user.last_name }}</h2>
+    {% if not pic == 'None' %}
+        <img src="{{ pic.profile_pic.url }}"  style="height: 250px;width: 300px;" alt="{{ pic }}">
+    {% else %}
+        <h2>Profile Pic: No Picture</h2>
+    {% endif %}
+    <h2>Email:{{ user.email }}</h2>
+</div>
+
+
+
+{% endblock %}

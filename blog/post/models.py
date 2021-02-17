@@ -3,6 +3,31 @@ from django.db import models
 from django.utils import timezone
 from django.utils.text import slugify    #to slugify
 from taggit.managers import TaggableManager
+from django.contrib.auth.models import User
+from django.utils.html import mark_safe
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    profile_pic = models.ImageField(upload_to='profiles',null=True)
+
+    def image_tag(self):
+            return mark_safe('<img src="/media/%s" width="150" height="150" />' % (self.profile_pic))
+            
+
+    def __str__(self):  
+        return str(self.user)
+
+    def save(self, *args, **kwargs):
+        try:
+            this = Profile.objects.get(id=self.id)
+            if this.profile_pic != self.profile_pic:
+                this.profile_pic.delete(save=False)
+        except:
+            pass  # when new photo then we do nothing, normal case
+        super().save(*args, **kwargs)
+    
+
 
 
 class Category(models.Model):
