@@ -1,9 +1,9 @@
 from django.shortcuts import render,get_object_or_404
 from django.utils import timezone
-from .models import Post,Category,Comment,Profile
+from .models import Post,Category,Comment,Profile,Tag
 from django.shortcuts import redirect
 from .forms import PostForm, CommentForm,UserProfileForm,UserUpdateForm,UserCreateForm
-from taggit.models import Tag
+#from taggit.models import Tag
 from django.contrib.auth.models import User
 #from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login,authenticate
@@ -72,17 +72,21 @@ def sign_up(request):
 
 
 def post_list(request,tag_slug=None):
-    posts = Post.objects.filter(published_date__lte=timezone.now()).order_by('-published_date')
-    tag = None
+    posts = Post.objects.filter(published_date__lte=timezone.now()).order_by('-published_date') 
+    print(posts)
     if tag_slug :
-        tag = get_object_or_404(Tag,slug = tag_slug)
-        posts = posts.filter(tags__in=[tag])
-    return render(request, 'post/post_list.html', {"posts":posts,"tag":tag})
+        
+        tag = Tag.objects.filter(slug=tag_slug).first()
+        print(tag)
+        query = tag_slug
+        posts = Post.objects.filter(tag = tag).all()
+        print(posts)
+    return render(request, 'post/post_list.html', {"posts":posts})
 
 
 
-def post_detail(request,pk):
-    post = get_object_or_404(Post, pk=pk)
+def post_detail(request,slug):
+    post = get_object_or_404(Post, slug=slug)
     comments = post.comments.filter(active=True,parent__isnull=True)
     new_comment = None 
     if request.method =='POST':
@@ -103,7 +107,7 @@ def post_detail(request,pk):
             new_comment = comment_form.save(commit=False)
             new_comment.post = post
             new_comment.save()
-            return redirect("post:post_detail",pk=post.pk)
+            return redirect("post:post_detail",slug=post.slug)
     else:
         comment_form = CommentForm()
     return render(request, 'post/post_detail.html', 
@@ -120,15 +124,15 @@ def post_new(request):
             post.author = request.user
             post.published_date = timezone.now()
             post.save()
-            form.save_m2m()             #to save tags
-            return redirect('post:post_detail', pk=post.pk)
+            #form.save_m2m()             #to save tags
+            return redirect('post:post_detail',slug=post.slug)
     else:
         form = PostForm()
     return render(request, 'post/post_edit.html', {'form': form})
 
 
-def post_edit(request, pk):
-    post = get_object_or_404(Post, pk=pk)
+def post_edit(request, slug):
+    post = get_object_or_404(Post, slug=slug)
     if request.method == "POST":
         form = PostForm(request.POST, instance=post)
         if form.is_valid():
@@ -136,8 +140,8 @@ def post_edit(request, pk):
             post.author = request.user
             post.published_date = timezone.now()
             post.save()
-            form.save_m2m()             #to save tags
-            return redirect('post:post_detail', pk=post.pk)
+            #form.save_m2m()             #to save tags
+            return redirect('post:post_detail', slug=post.slug)
     else:
         form = PostForm(instance=post)
     return render(request, 'post/post_edit.html', {'form': form})

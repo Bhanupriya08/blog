@@ -20,3 +20,9 @@ class Choice(models.Model):
 
     def __str__(self):
         return self.choice_text
+
+
+
+"""class Vote(models.Model):
+    choice = models.ForeignKey(Choice,on_delete=models.CASCADE)
+    voter = models.ForeignKey(User,)"""
